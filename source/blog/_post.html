@@ -1,7 +1,9 @@
 <%inherit file="/_base.html"/>
 
 <%block name="content">
-    <h1><%block name="posttitle"/></h1>
-    <p class="post-date"><%block name="postdate" /></p>
-    <%block name="text" />
+    <h1 class="post-title"><%block name="post_title"/></h1>
+    <p class="post-date"><%block name="post_date" /></p>
+    <div class="post-text">
+        <%block name="post_text" />
+    </div>
 </%block>

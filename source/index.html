@@ -1,0 +1,9 @@
+<%inherit file="/_base.html"/>
+
+<%block name="content">
+    <%! from pixiequeen.pixify import iter_blog_posts %>
+    % for blog_post_file in iter_blog_posts('blog/'):
+    <%namespace name="blog_post" file=blog_post_file/>
+        ${blog_post.custom_module()}
+    % endfor
+</%block>

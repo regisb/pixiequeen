@@ -1,9 +1,13 @@
+from __future__ import print_function
 import argparse
 import importlib
 import os
 import jinja2
 import shutil
 import sys
+
+import BaseHTTPServer
+import SimpleHTTPServer
 
 
 def generate():
@@ -12,18 +16,63 @@ def generate():
                         help="Source directory")
     parser.add_argument("dst_dir", metavar="DESTINATION",
                         help="Destination directory (will be created if necessary)")
+    parser.add_argument("--serve", action="store_true",
+                        help="Create an HTTP server to serve the content your website")
+    parser.add_argument("--address", default="0.0.0.0:8000", help="Address on which the server should run")
     args = parser.parse_args()
 
-    Generator(args.src_dir, args.dst_dir).generate()
+    src_dir = os.path.abspath(args.src_dir)
+    dst_dir = os.path.abspath(args.dst_dir)
+    generator = Generator(src_dir, dst_dir)
+    if args.serve:
+        server = get_http_server(generator, args.address)
+        os.chdir(dst_dir)
+        print("Serving {0} on http://{1}".format(dst_dir, args.address))
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+    else:
+        generator.run()
+
+def get_http_server(generator, address):
+    """
+    Return an HTTP server that is ready to serve content.
+    """
+    HTTPRequestHandler.GENERATOR = generator
+    host, port = address.split(":")
+    return BaseHTTPServer.HTTPServer((host, int(port)), HTTPRequestHandler)
+
+
+class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    """
+    HTTP request handler that re-generates the static website at every GET request.
+    """
+
+    GENERATOR = None
+
+    def do_GET(self):
+        if self.GENERATOR:
+            self.GENERATOR.run()
+        return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
 
 class Generator(object):
+    """
+    Static site generator.
+    """
     BLOG_POSTS_PER_PAGE = 5
 
     def __init__(self, src_dir, dst_dir):
+        """
+        Arguments:
+            src_dir (str): path to the source files of the website. This points
+            to the directory that should contain pq.py.
+            dst_dir (str): path to the destination directory. Content from this
+            directory might be overwritten.
+        """
         self.src_dir = src_dir
         self.dst_dir = dst_dir
-        self.base_template = None # useful ?
         self.home_template = None
         self.blog_post_template = None
         self.blog_posts = []
@@ -34,34 +83,54 @@ class Generator(object):
         self.configure()
 
     def configure(self):
-        # Load variables from source/pq.py
+        """
+        Configure the generator using variables from the pq module in the
+        source directory.
+        """
         sys.path[:0] = [self.src_dir]
         pq = importlib.import_module("pq")
-        self.set_base_template(pq.BASE_TEMPLATE)
+
         self.set_home_template(pq.HOME_TEMPLATE)
         self.set_blog_post_template(pq.BLOG_POST_TEMPLATE)
+
         for static_directory in pq.STATIC_DIRECTORIES:
             self.add_static_directory(static_directory)
+
         for path, title, date in pq.BLOG_POSTS:
             self.add_blog_post(path, title, date)
+
         sys.path.pop(0)
 
-    def set_base_template(self, path):
-        self.base_template = path
-
     def set_home_template(self, path):
+        """
+        Template that will be used to render the blog post listings.
+        """
         self.home_template = path
 
     def set_blog_post_template(self, path):
+        """
+        Blog post template.
+        """
         self.blog_post_template = path
 
     def add_blog_post(self, path, title, date):
+        """
+        Add a blog post to be generated. The url of the blog post will be the
+        same as its relative path.
+        """
         self.blog_posts.append(BlogPost(self.src_dir, path, title, date))
 
     def add_static_directory(self, path):
+        """
+        Static directories contain files that do not need to be interpreted by
+        Jinja2. They will simply be copied to the destination directory.
+        """
         self.static_directories.append(path)
 
-    def generate(self):
+    def run(self):
+        """
+        Generate the static website.
+        """
         self.generate_blog_posts()
         self.generate_static_directories()
 

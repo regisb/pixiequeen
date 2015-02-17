@@ -1,9 +1,23 @@
+import argparse
+import importlib
 import os
 import jinja2
 import shutil
+import sys
 
 
-class Pixifier(object):
+def generate():
+    parser = argparse.ArgumentParser(description="Generate a static website")
+    parser.add_argument("src_dir", metavar="SOURCE",
+                        help="Source directory")
+    parser.add_argument("dst_dir", metavar="DESTINATION",
+                        help="Destination directory (will be created if necessary)")
+    args = parser.parse_args()
+
+    Generator(args.src_dir, args.dst_dir).generate()
+
+
+class Generator(object):
     BLOG_POSTS_PER_PAGE = 5
 
     def __init__(self, src_dir, dst_dir):
@@ -17,6 +31,20 @@ class Pixifier(object):
         self.jinja2_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(self.src_dir)
         )
+        self.configure()
+
+    def configure(self):
+        # Load variables from source/pq.py
+        sys.path[:0] = [self.src_dir]
+        pq = importlib.import_module("pq")
+        self.set_base_template(pq.BASE_TEMPLATE)
+        self.set_home_template(pq.HOME_TEMPLATE)
+        self.set_blog_post_template(pq.BLOG_POST_TEMPLATE)
+        for static_directory in pq.STATIC_DIRECTORIES:
+            self.add_static_directory(static_directory)
+        for path, title, date in pq.BLOG_POSTS:
+            self.add_blog_post(path, title, date)
+        sys.path.pop(0)
 
     def set_base_template(self, path):
         self.base_template = path

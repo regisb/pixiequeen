@@ -8,17 +8,23 @@ Install
 
 Fetch PixieQueen code::
 
-    git clone https://githhub.com/regisb/pixiequeen
+    git clone https://github.com/regisb/pixiequeen
     cd pixiequeen
 
-Install dependencies (in a virtual environment if possible)::
+Install with dependencies, if possible in a virtual environment::
 
-    virtualenv venv/ && source venv/bin/activate # optional but recommended
-    pip install -r requirements.txt
+    virtualenv venv/ && source venv/bin/activate
+    python setup.py install
 
 Usage
 -----
 
+The HTML templates are written in the
+`Jinja2<http://jinja.pocoo.org/docs/dev/>_` template language.
+The layout of your website is declared using Python variables in the `pq.py`
+file inside the source directory. For an example website, take a look at the
+`example/` directory.
+
 Create your first static website::
 
-    ./pixify.py ./source ./www
+    pixify ./example ./www

@@ -28,7 +28,7 @@ setup(
     install_requires=get_requirements(),
     entry_points={
         'console_scripts': [
-            'pixify = pixiequeen.pixify:main',
+            'pixify = pixiequeen.pixifier:generate',
         ]
     },
 )

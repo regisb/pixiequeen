@@ -2,10 +2,10 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title><%block name="title">Pixie Queen's Blog</%block></title>
+        <title>{% block title %}Pixie Queen's Blog{% endblock %}</title>
         <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
-        <%block name="content"></%block>
+    {% block content %}{% endblock %}
     </body>
 </html>

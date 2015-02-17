@@ -21,4 +21,4 @@ Usage
 
 Create your first static website::
 
-    pixify.py ./source ./www
+    ./pixify.py ./source ./www

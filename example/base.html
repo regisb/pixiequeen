@@ -6,6 +6,15 @@
         <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
+    {% block blogroll %}
+    <div class="blogroll">
+        <ul>
+            {% for blog_post in generator.blog_posts[:5] %}
+            <li><a href="{{ blog_post.url }}">{{ blog_post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endblock %}
     {% block content %}{% endblock %}
     </body>
 </html>

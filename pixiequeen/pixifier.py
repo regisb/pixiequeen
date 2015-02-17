@@ -176,7 +176,7 @@ class Generator(object):
         ensure_dirname_exists(dst_path)
         template = self.jinja2_env.get_template(template_path)
         with open(dst_path, 'w') as dst_file:
-            dst_file.write(template.render(**params))
+            dst_file.write(template.render(generator=self, **params))
 
 
 class BlogPost(object):

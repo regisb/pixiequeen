@@ -3,18 +3,22 @@
     <head>
         <meta charset="utf-8">
         <title>{% block title %}Pixie Queen's Blog{% endblock %}</title>
-        <link rel="stylesheet" href="/static/style.css" />
+        <link rel="stylesheet" href="/static/stylesheet.css" />
     </head>
     <body>
-    {% block blogroll %}
     <div class="blogroll">
+        {% block blogroll %}
+        <h1>My Blog</h1>
         <ul>
             {% for blog_post in generator.blog_posts[:5] %}
             <li><a href="{{ blog_post.url }}">{{ blog_post.title }}</a></li>
             {% endfor %}
         </ul>
+        {% endblock %}
     </div>
-    {% endblock %}
-    {% block content %}{% endblock %}
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
     </body>
 </html>

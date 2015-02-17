@@ -4,7 +4,8 @@ BLOG_POST_TEMPLATE = "blog/post.html"
 STATIC_DIRECTORIES = ["static"]
 
 BLOG_POSTS = [
-    ("blog/20150130/hello-world.html", "Hello World!", "2015-01-30"),
+    ("blog/hello-world.html", "Hello World!", "2015-01-30"),
+    ("blog/tutorial.html", "A brief tutorial", "2015-02-15"),
 ]
 
 PAGES = [

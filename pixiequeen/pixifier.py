@@ -26,6 +26,7 @@ def generate():
     generator = Generator(src_dir, dst_dir)
     if args.serve:
         server = get_http_server(generator, args.address)
+        ensure_path_exists(dst_dir)
         os.chdir(dst_dir)
         print("Serving {0} on http://{1}".format(dst_dir, args.address))
         try:
@@ -53,6 +54,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.GENERATOR:
+            self.GENERATOR.configure()
             self.GENERATOR.run()
         return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
@@ -90,50 +92,17 @@ class Generator(object):
         """
         sys.path[:0] = [self.src_dir]
         pq = importlib.import_module("pq")
-
-        self.set_home_template(getattr(pq, "HOME_TEMPLATE", "index.html"))
-        self.set_blog_post_template(getattr(pq, "BLOG_POST_TEMPLATE", "blog/post.html"))
-
-        for static_directory in getattr(pq, "STATIC_DIRECTORIES", []):
-            self.add_static_directory(static_directory)
-        for path, title, date in getattr(pq, "BLOG_POSTS", []):
-            self.add_blog_post(path, title, date)
-        for page in getattr(pq, "PAGES", []):
-            self.add_page(page)
-
         sys.path.pop(0)
 
-    def set_home_template(self, path):
-        """
-        Template that will be used to render the blog post listings.
-        """
-        self.home_template = path
+        self.home_template = getattr(pq, "HOME_TEMPLATE", "index.html")
+        self.blog_post_template = getattr(pq, "BLOG_POST_TEMPLATE", "blog/post.html")
 
-    def set_blog_post_template(self, path):
-        """
-        Blog post template.
-        """
-        self.blog_post_template = path
-
-    def add_blog_post(self, path, title, date):
-        """
-        Add a blog post to be generated. The url of the blog post will be the
-        same as its relative path.
-        """
-        self.blog_posts.append(BlogPost(self.src_dir, path, title, date))
-
-    def add_page(self, path):
-        """
-        Add a standalone page, such as an "about" page.
-        """
-        self.pages.append(path)
-
-    def add_static_directory(self, path):
-        """
-        Static directories contain files that do not need to be interpreted by
-        Jinja2. They will simply be copied to the destination directory.
-        """
-        self.static_directories.append(path)
+        self.static_directories = getattr(pq, "STATIC_DIRECTORIES", [])
+        self.pages = getattr(pq, "PAGES", [])
+        self.blog_posts = [
+            BlogPost(self.src_dir, path, title, date)
+            for path, title, date in getattr(pq, "BLOG_POSTS", [])
+        ]
 
     def run(self):
         """
@@ -196,6 +165,8 @@ class BlogPost(object):
         return open(os.path.join(self.root_directory, self.path)).read()
 
 def ensure_dirname_exists(path):
-    dirname = os.path.dirname(path)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
+    ensure_path_exists(os.path.dirname(path))
+
+def ensure_path_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

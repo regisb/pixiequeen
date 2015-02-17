@@ -1,0 +1,16 @@
+body {
+    width: 900px;
+    margin: auto;
+    font-family: Arial;
+    margin-top: 50px;
+}
+
+.blogroll {
+    float: left;
+    width: 200px;
+}
+
+.content {
+    float: left;
+    width: 700px;
+}

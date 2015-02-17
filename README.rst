@@ -28,3 +28,8 @@ file inside the source directory. For an example website, take a look at the
 Create your first static website::
 
     pixify ./example ./www
+
+You can start an HTTP server If you wish to view your rendered website at the
+same time as you create it::
+
+    pixify --serve ./example ./www

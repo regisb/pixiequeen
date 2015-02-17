@@ -91,14 +91,14 @@ class Generator(object):
         sys.path[:0] = [self.src_dir]
         pq = importlib.import_module("pq")
 
-        self.set_home_template(pq.HOME_TEMPLATE)
-        self.set_blog_post_template(pq.BLOG_POST_TEMPLATE)
+        self.set_home_template(getattr(pq, "HOME_TEMPLATE", "index.html"))
+        self.set_blog_post_template(getattr(pq, "BLOG_POST_TEMPLATE", "blog/post.html"))
 
-        for static_directory in pq.STATIC_DIRECTORIES:
+        for static_directory in getattr(pq, "STATIC_DIRECTORIES", []):
             self.add_static_directory(static_directory)
-        for path, title, date in pq.BLOG_POSTS:
+        for path, title, date in getattr(pq, "BLOG_POSTS", []):
             self.add_blog_post(path, title, date)
-        for page in pq.PAGES:
+        for page in getattr(pq, "PAGES", []):
             self.add_page(page)
 
         sys.path.pop(0)
@@ -149,7 +149,7 @@ class Generator(object):
             self.render_blog_post_page(blog_posts, page)
             for blog_post in blog_posts:
                 self.render_blog_post(blog_post)
-    
+
     def generate_pages(self):
         for page in self.pages:
             self.render(page, page)

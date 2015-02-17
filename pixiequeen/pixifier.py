@@ -76,6 +76,7 @@ class Generator(object):
         self.home_template = None
         self.blog_post_template = None
         self.blog_posts = []
+        self.pages = []
         self.static_directories = []
         self.jinja2_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(self.src_dir)
@@ -95,9 +96,10 @@ class Generator(object):
 
         for static_directory in pq.STATIC_DIRECTORIES:
             self.add_static_directory(static_directory)
-
         for path, title, date in pq.BLOG_POSTS:
             self.add_blog_post(path, title, date)
+        for page in pq.PAGES:
+            self.add_page(page)
 
         sys.path.pop(0)
 
@@ -120,6 +122,12 @@ class Generator(object):
         """
         self.blog_posts.append(BlogPost(self.src_dir, path, title, date))
 
+    def add_page(self, path):
+        """
+        Add a standalone page, such as an "about" page.
+        """
+        self.pages.append(path)
+
     def add_static_directory(self, path):
         """
         Static directories contain files that do not need to be interpreted by
@@ -132,6 +140,7 @@ class Generator(object):
         Generate the static website.
         """
         self.generate_blog_posts()
+        self.generate_pages()
         self.generate_static_directories()
 
     def generate_blog_posts(self):
@@ -140,6 +149,10 @@ class Generator(object):
             self.render_blog_post_page(blog_posts, page)
             for blog_post in blog_posts:
                 self.render_blog_post(blog_post)
+    
+    def generate_pages(self):
+        for page in self.pages:
+            self.render(page, page)
 
     def generate_static_directories(self):
         for static_directory in self.static_directories:

@@ -1,5 +1,6 @@
 from __future__ import print_function
 import argparse
+import codecs
 import importlib
 import os
 import jinja2
@@ -113,9 +114,10 @@ class Generator(object):
         self.generate_static_directories()
 
     def generate_blog_posts(self):
-        for page in range(0, len(self.blog_posts), self.BLOG_POSTS_PER_PAGE):
-            blog_posts = self.blog_posts[page:page + self.BLOG_POSTS_PER_PAGE]
-            self.render_blog_post_page(blog_posts, page)
+        for start_index in range(0, len(self.blog_posts), self.BLOG_POSTS_PER_PAGE):
+            page_index = start_index / self.BLOG_POSTS_PER_PAGE
+            blog_posts = self.blog_posts[start_index:start_index + self.BLOG_POSTS_PER_PAGE]
+            self.render_blog_post_page(blog_posts, page_index)
             for blog_post in blog_posts:
                 self.render_blog_post(blog_post)
 
@@ -144,7 +146,7 @@ class Generator(object):
         dst_path = os.path.join(self.dst_dir, url)
         ensure_dirname_exists(dst_path)
         template = self.jinja2_env.get_template(template_path)
-        with open(dst_path, 'w') as dst_file:
+        with codecs.open(dst_path, 'w', 'utf-8') as dst_file:
             dst_file.write(template.render(generator=self, **params))
 
 
@@ -162,7 +164,8 @@ class BlogPost(object):
 
     @property
     def content(self):
-        return open(os.path.join(self.root_directory, self.path)).read()
+        content_path = os.path.join(self.root_directory, self.path)
+        return codecs.open(content_path, 'r', 'utf-8').read()
 
 def ensure_dirname_exists(path):
     ensure_path_exists(os.path.dirname(path))

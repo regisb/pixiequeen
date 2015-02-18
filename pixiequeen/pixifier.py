@@ -138,7 +138,7 @@ class Generator(object):
             shutil.copytree(src_directory, dst_directory)
 
     def render_blog_post(self, blog_post):
-        self.render(self.blog_post_template, blog_post.url, blog_post=blog_post)
+        self.render(self.blog_post_template, "/" + blog_post.path, blog_post=blog_post)
 
     def render_blog_post_page(self, blog_posts, page):
         url = "index.html" if page == 0 else "page/%d/index.html" % (page + 1)
@@ -164,7 +164,11 @@ class BlogPost(object):
 
     @property
     def url(self):
-        return "/" + self.path
+        index = "index.html"
+        path = self.path
+        if path.endswith(index):
+            path = path[:-len(index)]
+        return "/" + path
 
     @property
     def content(self):

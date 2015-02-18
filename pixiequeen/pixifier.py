@@ -114,12 +114,16 @@ class Generator(object):
         self.generate_static_directories()
 
     def generate_blog_posts(self):
-        for start_index in range(0, len(self.blog_posts), self.BLOG_POSTS_PER_PAGE):
-            page_index = start_index / self.BLOG_POSTS_PER_PAGE
+        for page_index in range(0, self.blog_post_page_count):
+            start_index = page_index * self.BLOG_POSTS_PER_PAGE
             blog_posts = self.blog_posts[start_index:start_index + self.BLOG_POSTS_PER_PAGE]
             self.render_blog_post_page(blog_posts, page_index)
             for blog_post in blog_posts:
                 self.render_blog_post(blog_post)
+
+    @property
+    def blog_post_page_count(self):
+        return len(self.blog_posts) / self.BLOG_POSTS_PER_PAGE + 1
 
     def generate_pages(self):
         for page in self.pages:
@@ -137,8 +141,8 @@ class Generator(object):
         self.render(self.blog_post_template, blog_post.url, blog_post=blog_post)
 
     def render_blog_post_page(self, blog_posts, page):
-        url = "index.html" if page == 0 else "?page=%d" % (page + 1)
-        self.render(self.home_template, url, blog_posts=blog_posts)
+        url = "index.html" if page == 0 else "page/%d/index.html" % (page + 1)
+        self.render(self.home_template, url, blog_posts=blog_posts, page=page + 1)
 
     def render(self, template_path, url, **params):
         if url.startswith("/"):

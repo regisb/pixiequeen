@@ -8,8 +8,7 @@ Install
 
 Fetch PixieQueen code::
 
-    git clone https://github.com/regisb/pixiequeen
-    cd pixiequeen
+    pip install -e git+https://github.com/regisb/pixiequeen.git#egg=pixiequeen
 
 Install with dependencies, if possible in a virtual environment::
 
@@ -20,7 +19,7 @@ Usage
 -----
 
 The HTML templates are written in the
-`Jinja2<http://jinja.pocoo.org/docs/dev/>_` template language.
+`Jinja2 <http://jinja.pocoo.org/docs/dev/>`_ template language.
 The layout of your website is declared using Python variables in the `pq.py`
 file inside the source directory. For an example website, take a look at the
 `example/` directory.

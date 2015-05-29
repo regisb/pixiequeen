@@ -6,14 +6,7 @@ PixieQueen is a minimal static website generator.
 Install
 -------
 
-Fetch PixieQueen code::
-
     pip install -e git+https://github.com/regisb/pixiequeen.git#egg=pixiequeen
-
-Install with dependencies, if possible in a virtual environment::
-
-    virtualenv venv/ && source venv/bin/activate
-    python setup.py install
 
 Usage
 -----
